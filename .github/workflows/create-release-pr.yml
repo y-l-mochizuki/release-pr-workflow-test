@@ -27,13 +27,33 @@ jobs:
           ref: ${{ inputs.base_branch }}
           fetch-depth: 0
 
+      - name: Check if branch name is semantic version without release/ prefix
+        shell: bash
+        run: |
+          set -euo pipefail
+          # GITHUB_HEAD_REF には PR のソースブランチ名が入ります
+          VERSION="${{ inputs.version }}"
+          BRANCH_NAME="release/v${VERSION}"
+          echo "Checking branch name: ${BRANCH_NAME}"
+
+          # 1) セマンティックバージョン（例: 1.2.3）チェック
+          if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version '${VERSION}' must be like 1.2.3"
+            exit 1
+          fi
+
+          # 2) 既存の release ブランチがある場合は失敗（既存PR更新の事故を防ぐ）
+          if git ls-remote --exit-code origin "refs/heads/${BRANCH_NAME}" >/dev/null; then
+            echo "Error: Branch '${BRANCH_NAME}' already exists on origin. Choose another version or remove the old release branch."
+            exit 1
+          fi
+
+          echo "OK: Branch name '${BRANCH_NAME}' is valid and not in use."
+
       - name: Update package.json version
         run: |
           set -euo pipefail
           VERSION="${{ inputs.version }}"
-          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "version must be like 1.2.3"; exit 1
-          fi
           sudo apt-get update -y && sudo apt-get install -y jq
           jq --arg v "$VERSION" '.version=$v' package.json > package.json.tmp && mv package.json.tmp package.json
           echo "Updated version to $VERSION"
