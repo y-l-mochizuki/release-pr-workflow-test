@@ -18,7 +18,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  release-pr:
+  create-release-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout base
@@ -71,4 +71,4 @@ jobs:
             - Base: `${{ inputs.base_branch }}`
             - Branch: `release/v${{ inputs.version }}`
             - package.json version → `${{ inputs.version }}`
-          assignees: y-l-mochizuki
+          assignees: ${{ github.actor }}
