@@ -31,7 +31,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # GITHUB_HEAD_REF には PR のソースブランチ名が入ります
           VERSION="${{ inputs.version }}"
           BRANCH_NAME="release/v${VERSION}"
           echo "Checking branch name: ${BRANCH_NAME}"
@@ -54,7 +53,6 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${{ inputs.version }}"
-          sudo apt-get update -y && sudo apt-get install -y jq
           jq --arg v "$VERSION" '.version=$v' package.json > package.json.tmp && mv package.json.tmp package.json
           echo "Updated version to $VERSION"
 
@@ -64,7 +62,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ inputs.base_branch }}
           branch: release/v${{ inputs.version }}
-          commit-message: "chore(release): v${{ inputs.version }}"
+          commit-message: "chore: release v${{ inputs.version }}"
           title: "Release v${{ inputs.version }}"
           body: |
             Automated release PR
