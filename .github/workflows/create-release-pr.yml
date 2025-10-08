@@ -71,5 +71,4 @@ jobs:
             - Base: `${{ inputs.base_branch }}`
             - Branch: `release/v${{ inputs.version }}`
             - package.json version → `${{ inputs.version }}`
-          labels: release, automated
           assignees: y-l-mochizuki
